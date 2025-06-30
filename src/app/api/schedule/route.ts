@@ -77,7 +77,6 @@ export async function GET(req: Request) {
             { Date: { $regex: search, $options: "i" } },
             { StartTime: { $regex: search, $options: "i" } },
             { EndTime: { $regex: search, $options: "i" } },
-            { Fees: { $regex: search, $options: "i" } },
             { Location: { $regex: search, $options: "i" } },
             { Notes: { $regex: search, $options: "i" } },
             { Status: { $regex: search, $options: "i" } },

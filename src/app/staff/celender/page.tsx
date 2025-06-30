@@ -18,6 +18,7 @@ import {
   deleteSchedule,
 } from "../../../../store/features/schedule/scheduleActions";
 import AddSchedule from "../add-schedule/page";
+import { useRouter } from "next/navigation";
 
 const locales = { "en-US": enUS };
 
@@ -47,9 +48,12 @@ export default function CalendarPage() {
   const [showChoice, setShowChoice] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   useEffect(() => {
-    dispatch(getSchedule({})).then((res) => setSchedule(res.payload.schedules));
+    dispatch(getSchedule({})).then((res) =>
+      setSchedule(res.payload?.schedules)
+    );
   }, [dispatch]);
 
   const handleSelectEvent = (event: MyEvent) => {
@@ -63,9 +67,10 @@ export default function CalendarPage() {
     setShowEdit(false);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (id: string) => {
     setShowChoice(false);
     setShowEdit(true);
+    router.push(`?id=${id}`, { scroll: false });
   };
 
   const handleDelete = async () => {
@@ -89,7 +94,7 @@ export default function CalendarPage() {
       patient: { firstName: string; lastName: string };
     }[]
   ): MyEvent[] => {
-    return schedule.map((item) => {
+    return schedule?.map((item) => {
       const { Date: date, StartTime, EndTime, patient, _id: id } = item;
       const start = new Date(`${date}T${StartTime}`);
       const end = new Date(`${date}T${EndTime}`);
@@ -173,7 +178,7 @@ export default function CalendarPage() {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleEdit}
+            onClick={() => handleEdit(selectedEvent?.resource?.id as string)}
             sx={{ width: "100%" }}
           >
             Edit
@@ -198,7 +203,7 @@ export default function CalendarPage() {
         aria-labelledby="edit-modal-title"
         aria-describedby="edit-modal-description"
       >
-        <AddSchedule editId={selectedEvent?.resource?.id || ""} />
+        <AddSchedule />
       </Modal>
     </div>
   );
