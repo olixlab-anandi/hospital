@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Form from "../../../../components/common/Form";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store/store";
 import {
@@ -11,6 +11,7 @@ import {
   getStaffList,
 } from "../../../../store/features/patient/patientAction";
 import { patient } from "../patient-detail/page";
+import { redirect } from "next/navigation";
 
 function AddPatient() {
   const [formData, setFormData] = useState<patient>({});

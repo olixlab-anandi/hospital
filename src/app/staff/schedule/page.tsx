@@ -21,7 +21,7 @@ import Table from "../../../../components/common/Table";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../store/store";
 import debounce from "lodash.debounce";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 const PAGE_SIZE = 10;
 type StatusType = "Scheduled" | "Completed" | "Cancelled";
@@ -60,7 +60,6 @@ function StaffSchedule() {
   const [currentData, setCurrentData] = useState<Schedule[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
   const cacheRef = useRef<CacheType>({});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSetSearchKey = useCallback(
@@ -211,7 +210,7 @@ function StaffSchedule() {
           <button
             className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition"
             title="Edit"
-            onClick={() => router.push(`/staff/add-schedule?id=${row._id}`)}
+            onClick={() => redirect(`/staff/add-schedule?id=${row._id}`)}
           >
             <FaEdit />
           </button>
@@ -245,7 +244,7 @@ function StaffSchedule() {
           </h2>
           <button
             className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg bg-[#0288D1] text-white font-semibold shadow hover:bg-[#039be5] transition w-full md:w-auto justify-center"
-            onClick={() => router.push("/staff/add-schedule")}
+            onClick={() => redirect("/staff/add-schedule")}
           >
             <FaPlus /> Add Schedule
           </button>

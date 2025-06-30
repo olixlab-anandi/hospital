@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import Form from "../../../../components/common/Form";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store/store";
+import { redirect } from "next/navigation";
 import {
   addStaff,
   editStaff,
 } from "../../../../store/features/admin/adminActions";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { staff } from "../staff-details/page";
 
 function AddStaff() {
