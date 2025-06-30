@@ -13,7 +13,7 @@ import {
 import { useSearchParams, redirect } from "next/navigation";
 import { getPatientList } from "./../../../../store/features/schedule/scheduleActions";
 
-function AddSchedule(editId: { id: string }) {
+function AddSchedule({ editId }: { editId: string }) {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState<FieldValues>({});
   const [isFormSubmit, setIsFormSubmit] = useState(false);
@@ -25,7 +25,7 @@ function AddSchedule(editId: { id: string }) {
   const scheduleList = useSelector(
     (state: RootState) => state.schedule.schedule
   );
-  const id = searchParams.get("id") || editId?.id;
+  const id = searchParams.get("id") || editId;
 
   useEffect(() => {
     dispatch(getPatientList({ staffId: user._id, date: "" })).then((res) => {

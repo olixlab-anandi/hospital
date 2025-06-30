@@ -414,7 +414,7 @@ const Form: React.FC<FormProps> = ({
       </div>
     );
   };
-  console.log(formData);
+
   return (
     <form
       className="w-full mx-auto animate-fade-in"

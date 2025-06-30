@@ -93,6 +93,7 @@ export default function CalendarPage() {
       const { Date: date, StartTime, EndTime, patient, _id: id } = item;
       const start = new Date(`${date}T${StartTime}`);
       const end = new Date(`${date}T${EndTime}`);
+
       return {
         title: `${patient.firstName} ${patient.lastName}`,
         start,
@@ -190,14 +191,14 @@ export default function CalendarPage() {
           </Button>
         </Box>
       </Modal>
-      {/* Edit Modal */}
+
       <Modal
         open={showEdit}
         onClose={handleClose}
         aria-labelledby="edit-modal-title"
         aria-describedby="edit-modal-description"
       >
-        <AddSchedule id={selectedEvent?.resource?.id || ""} />
+        <AddSchedule editId={selectedEvent?.resource?.id || ""} />
       </Modal>
     </div>
   );
