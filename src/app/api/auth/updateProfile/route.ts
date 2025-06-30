@@ -52,6 +52,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     const { password, ...updatedData } = updated.toObject();
+    console.log(password);
     return NextResponse.json({
       message: "Profile updated successfully",
       user: updatedData,

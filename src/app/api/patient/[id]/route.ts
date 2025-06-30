@@ -3,7 +3,7 @@ import AuthCheck from "@/middleware/AuthCheck";
 import connection from "@/DB/connection";
 import patientModel from "../../../../../model/patientSchema";
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: { params: { id: string } }) {
   try {
     const { id } = await context.params;
     if (!id) {

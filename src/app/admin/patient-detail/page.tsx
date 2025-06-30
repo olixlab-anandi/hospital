@@ -53,7 +53,7 @@ function Patient() {
       return;
     }
     // Not cached, fetch and cache after fetch
-    dispatch(getPatient({ searchVal: debouncedSearch, page })).then((res) => {
+    dispatch(getPatient({ search: debouncedSearch, page })).then((res) => {
       if (res && res.payload) {
         if (!cacheRef.current[searchKey]) cacheRef.current[searchKey] = {};
         cacheRef.current[searchKey][page] = {

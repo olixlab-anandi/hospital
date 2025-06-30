@@ -63,7 +63,7 @@ function EditProfile() {
         setIsSubmitting(false);
       }
     },
-    [dispatch, form, router, user?._id, user?.role]
+    [dispatch, form, user?._id, user?.role]
   );
 
   return (

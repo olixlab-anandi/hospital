@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import scheduleModel from "../../../../model/scheduleSchema";
 import connection from "@/DB/connection";
+import AuthCheck from "@/middleware/AuthCheck";
 
 export async function POST(req: Request) {
   try {
     await connection();
-
+    await AuthCheck(req.headers.get("authorization") as string);
     const todayDate = new Date();
     todayDate.setDate(todayDate.getDate() - 1);
     const prevDate = todayDate.toISOString().split("T")[0];

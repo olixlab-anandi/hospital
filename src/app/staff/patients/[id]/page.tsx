@@ -35,7 +35,7 @@ function PatientDetailPage() {
     dispatch(getPatientById(id as string)).then((res) => {
       setPatient(res.payload);
     });
-  }, [id]);
+  }, [dispatch, id]);
   return (
     <>
       {!isLoading ? (
