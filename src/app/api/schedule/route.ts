@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connection from "@/DB/connection";
 import scheduleModel from "../../../../model/scheduleSchema";
 import AuthCheck from "@/middleware/AuthCheck";
+import patientModel from "../../../../model/patientSchema";
 
 export async function POST(req: Request) {
   try {
