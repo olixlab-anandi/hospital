@@ -1,8 +1,9 @@
 {
-  "functions": {
-    "api/carry-schedule.js": {
-      "cron": "50 12 * * *",
+  "cron": [
+    {
+      "path": "/api/carry-schedule",
+      "schedule": "0 5 * * *",
       "timezone": "Asia/Kolkata"
     }
-  }
+  ]
 }
