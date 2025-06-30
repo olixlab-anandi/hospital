@@ -2,8 +2,7 @@
   "crons": [
     {
       "path": "/api/carry-schedule",
-      "schedule": "50 12 * * *",
-      "timezone": "Asia/Kolkata"
+      "schedule": "21 17 * * *"
     }
   ]
 }
