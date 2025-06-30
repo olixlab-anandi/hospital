@@ -5,7 +5,7 @@ import patientModel from "../../../../../model/patientSchema";
 
 export async function GET(req: Request, context: { params: { id: string } }) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
     if (!id) {
       return NextResponse.json(
         { error: "Patient ID is required" },
