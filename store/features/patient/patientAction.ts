@@ -131,7 +131,7 @@ export const getPatientById = createAsyncThunk(
   async (id: string, _thunkApi) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`/api/patient/${id}`, {
+      const res = await axios.get(`/api/patient?id=${id}`, {
         headers: {
           Authorization: token,
         },

@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import AuthCheck from "@/middleware/AuthCheck";
 import connection from "@/DB/connection";
 import patientModel from "../../../../../model/patientSchema";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
-    const { id } = context.params;
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
     if (!id) {
       return NextResponse.json(
         { error: "Patient ID is required" },
