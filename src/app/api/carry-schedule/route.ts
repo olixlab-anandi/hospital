@@ -3,12 +3,13 @@ import scheduleModel from "../../../../model/scheduleSchema";
 import connection from "@/DB/connection";
 import AuthCheck from "@/middleware/AuthCheck";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
     await connection();
     await AuthCheck(req.headers.get("authorization") as string);
     const todayDate = new Date();
     todayDate.setDate(todayDate.getDate() - 1);
+    console.log("yesterday date", todayDate);
     const prevDate = todayDate.toISOString().split("T")[0];
     const schedules = await scheduleModel.find({
       Date: prevDate,
