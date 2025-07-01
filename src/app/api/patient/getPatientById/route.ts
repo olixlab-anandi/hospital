@@ -3,11 +3,10 @@ import AuthCheck from "@/middleware/AuthCheck";
 import connection from "@/DB/connection";
 import patientModel from "../../../../../model/patientSchema";
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(req: Request) {
   try {
-    // const { searchParams } = new URL(req.url);
-    // const id = searchParams.get("id");
-    const id = context?.params?.id ?? "";
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
 
     if (!id) {
       return NextResponse.json(
