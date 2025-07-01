@@ -126,7 +126,7 @@ const Form: React.FC<FormProps> = ({
   } = useForm({
     defaultValues: useMemo(() => formData, [formData]),
   });
-
+  console.log(errors);
   function onSubmit(data: FieldValues) {
     setIsFormSubmit(true);
     setFormData({ ...formData, ...data });
@@ -233,6 +233,7 @@ const Form: React.FC<FormProps> = ({
             </label>
           )}
           <Autocomplete<{ id: string; value: string } | string>
+            {...register(field.name || "", validation)}
             id={field.id}
             options={field.options || []}
             getOptionLabel={(option) =>

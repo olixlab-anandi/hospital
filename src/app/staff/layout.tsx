@@ -7,14 +7,8 @@ import { AppDispatch, RootState } from "../../../store/store";
 import { logout } from "../../../store/features/auth/authSlice";
 import { redirect } from "next/navigation";
 import { setActiveTab } from "../../../store/features/admin/adminSlice";
-import {
-  FaHome,
-  FaUser,
-  FaUserInjured,
-  FaCalendarAlt,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
+import { FaHome, FaUser, FaUserInjured, FaBars, FaTimes } from "react-icons/fa";
+import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
 
 const NAV_ITEMS = [
@@ -40,13 +34,13 @@ const NAV_ITEMS = [
     key: "schedule",
     label: "Schedule",
     path: "/staff/schedule",
-    icon: <FaCalendarAlt className="mr-3 text-lg" />,
+    icon: <FaRegClock className="mr-3 text-lg" />, // Changed to clock
   },
   {
     key: "celender",
-    label: "Celender View",
+    label: "Calendar View",
     path: "/staff/celender",
-    icon: <FaCalendarAlt className="mr-3 text-lg" />,
+    icon: <FaRegCalendarAlt className="mr-3 text-lg" />, // Changed to calendar
   },
 ];
 

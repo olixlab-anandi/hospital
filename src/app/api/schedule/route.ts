@@ -8,8 +8,17 @@ void patientModel;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { patient, Date, StartTime, EndTime, Fees, Location, Notes, Status } =
-      body;
+    const {
+      patient,
+      Date,
+      StartTime,
+      EndTime,
+      Fees,
+      Location,
+      Notes,
+      Status,
+      sessionGap,
+    } = body;
     if (!patient || !Date || !EndTime || !StartTime || !Status) {
       return new Response(
         JSON.stringify({ error: "All fields are required" }),
@@ -38,6 +47,7 @@ export async function POST(req: Request) {
         Notes,
         Status,
         patient: patient,
+        sessionGap: sessionGap || 1,
       });
 
       await schedule.save();
@@ -178,8 +188,17 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-    const { patient, Date, StartTime, EndTime, Fees, Location, Notes, Status } =
-      body;
+    const {
+      patient,
+      Date,
+      StartTime,
+      EndTime,
+      Fees,
+      Location,
+      Notes,
+      Status,
+      sessionGap,
+    } = body;
     if (!patient || !Date || !StartTime || !EndTime || !Status) {
       return new Response(
         JSON.stringify({ error: "All fields are required" }),
@@ -207,6 +226,7 @@ export async function PATCH(req: Request) {
         Location,
         Notes,
         Status,
+        sessionGap: sessionGap || 1,
       });
       return NextResponse.json({
         success: true,

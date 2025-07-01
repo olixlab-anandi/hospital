@@ -20,6 +20,10 @@ const scheduleSchema = new mongoose.Schema(
     Location: String,
     Notes: String,
     Status: String,
+    sessionGap: {
+      type: Number,
+      default: 1,
+    },
   },
   {
     timestamps: true,

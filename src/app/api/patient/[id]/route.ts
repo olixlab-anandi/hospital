@@ -3,10 +3,12 @@ import AuthCheck from "@/middleware/AuthCheck";
 import connection from "@/DB/connection";
 import patientModel from "../../../../../model/patientSchema";
 
-export async function GET(req: Request) {
+export async function GET(req: Request, context: { params: { id: string } }) {
   try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+    // const { searchParams } = new URL(req.url);
+    // const id = searchParams.get("id");
+    const id = context?.params?.id ?? "";
+
     if (!id) {
       return NextResponse.json(
         { error: "Patient ID is required" },
@@ -17,7 +19,7 @@ export async function GET(req: Request) {
     const token = req.headers.get("authorization");
 
     const res = await AuthCheck(token as string);
-
+    console.log("token", req.headers);
     if (
       typeof res == "object" &&
       "role" in res &&
@@ -26,7 +28,10 @@ export async function GET(req: Request) {
       const patient = await patientModel.findById(id);
       return NextResponse.json(patient);
     } else {
-      return NextResponse.json(res);
+      return NextResponse.json({
+        status: 401,
+        message: typeof res == "object" && res?.message,
+      });
     }
   } catch (error) {
     console.log(error);

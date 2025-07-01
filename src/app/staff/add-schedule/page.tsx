@@ -150,6 +150,13 @@ function AddSchedule() {
           placeholder: "Select status...",
           defaultValue: "Scheduled",
         },
+        {
+          name: "sessionGap",
+          type: "number",
+          id: "sessionGap",
+          label: "Session Gap (Optional)",
+          placeholder: "Enter session gap...",
+        },
       ],
     },
     {

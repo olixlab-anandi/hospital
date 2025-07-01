@@ -125,3 +125,22 @@ export const getPatientList = createAsyncThunk(
     }
   }
 );
+
+export const getStaffWiseSchedule = createAsyncThunk(
+  "schedule/getStaffWiseSchedule",
+  async (staffId: string, _thunkApi) => {
+    try {
+      const res = await axios.get(`/api/staffWiseSchedule?staffId=${staffId}`, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      if (res.data.status == 401) {
+        _thunkApi.dispatch(logout());
+      }
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);

@@ -11,11 +11,12 @@ import { enUS } from "date-fns/locale/en-US";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store/store";
 import {
   getSchedule,
   deleteSchedule,
+  getStaffWiseSchedule,
 } from "../../../../store/features/schedule/scheduleActions";
 import AddSchedule from "../add-schedule/page";
 import { useRouter } from "next/navigation";
@@ -47,12 +48,13 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [showChoice, setShowChoice] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   useEffect(() => {
-    dispatch(getSchedule({})).then((res) =>
-      setSchedule(res.payload?.schedules)
+    dispatch(getStaffWiseSchedule(user._id)).then((res) =>
+      setSchedule(res.payload)
     );
   }, [dispatch]);
 
@@ -175,6 +177,7 @@ export default function CalendarPage() {
           }}
         >
           <h3 id="choice-modal-title">What do you want to do?</h3>
+
           <Button
             variant="contained"
             color="primary"
