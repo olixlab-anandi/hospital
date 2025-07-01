@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/carry-schedule",
-       "schedule": "*/1 * * * *"
+       "schedule": "12 5 * * *"
     }
   ]
 }
