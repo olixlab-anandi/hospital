@@ -3,6 +3,8 @@ import connection from "@/DB/connection";
 import scheduleModel from "../../../../model/scheduleSchema";
 import AuthCheck from "@/middleware/AuthCheck";
 
+import patientModel from "../../../../model/patientSchema"; // Required for Mongoose .populate("patient")
+void patientModel;
 export async function POST(req: Request) {
   try {
     const body = await req.json();

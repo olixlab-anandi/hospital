@@ -12,9 +12,9 @@ export async function POST(req: Request) {
     const prevDate = todayDate.toISOString().split("T")[0];
     const schedules = await scheduleModel.find({
       Date: prevDate,
-      Status: { $ne: "Completed" },
+      Status: { $nin: ["Completed", "Canceled"] },
     });
-    console.log(prevDate, "today", new Date().toISOString().split("T")[0]);
+
     const carryForwardSchedules = schedules?.map((s) => {
       const scheduleObj = s.toObject();
       scheduleObj.Date = new Date().toISOString().split("T")[0];
