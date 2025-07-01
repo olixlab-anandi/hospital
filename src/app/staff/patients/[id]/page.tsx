@@ -53,7 +53,7 @@ function PatientDetailPage() {
                 />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center text-6xl font-extrabold text-white border-4 border-blue-300 shadow">
-                  {patient.firstName?.[0]}
+                  {patient?.firstName?.[0]}
                 </div>
               )}
               <div>
