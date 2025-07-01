@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       "role" in res &&
       (res?.role == "admin" || res?.role == "staff")
     ) {
-      const patient = await patientModel.findById(id);
+      const patient = await patientModel.findOne({ _id: id });
       return NextResponse.json(patient);
     } else {
       return NextResponse.json({
