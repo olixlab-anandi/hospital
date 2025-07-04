@@ -7,7 +7,14 @@ import { AppDispatch, RootState } from "../../../store/store";
 import { logout } from "../../../store/features/auth/authSlice";
 import { redirect } from "next/navigation";
 import { setActiveTab } from "../../../store/features/admin/adminSlice";
-import { FaHome, FaUser, FaUserInjured, FaBars, FaTimes } from "react-icons/fa";
+import {
+  FaHome,
+  FaUser,
+  FaUserInjured,
+  FaBars,
+  FaTimes,
+  FaRegFileAlt,
+} from "react-icons/fa";
 import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
 
@@ -41,6 +48,12 @@ const NAV_ITEMS = [
     label: "Calendar View",
     path: "/staff/celender",
     icon: <FaRegCalendarAlt className="mr-3 text-lg" />, // Changed to calendar
+  },
+  {
+    key: "report",
+    label: "Reports",
+    path: "/staff/report",
+    icon: <FaRegFileAlt className="mr-3 text-lg" />, // Added report icon
   },
 ];
 

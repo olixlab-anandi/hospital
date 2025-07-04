@@ -23,7 +23,7 @@ import { AppDispatch } from "../../../../store/store";
 import debounce from "lodash.debounce";
 import { redirect } from "next/navigation";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 type StatusType = "Scheduled" | "Completed" | "Cancelled";
 const statusIcon: Record<StatusType, React.ReactNode> = {
   Scheduled: <FaHourglassHalf className="text-yellow-500" />,

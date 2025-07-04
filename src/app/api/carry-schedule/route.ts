@@ -21,7 +21,13 @@ export async function GET() {
     for (const patientId of patientsWithSchedules) {
       // 2. Get latest schedule for the patient
       const lastSchedule = await scheduleModel
-        .findOne({ patient: patientId })
+        .findOneAndUpdate(
+          { patient: patientId },
+          {
+            createdAt: new Date(),
+          },
+          { new: true }
+        )
         .sort({ Date: -1 });
 
       if (!lastSchedule) continue;

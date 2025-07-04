@@ -97,6 +97,7 @@ export default function CalendarPage() {
     }[]
   ): MyEvent[] => {
     return schedule?.map((item) => {
+      console.log(item);
       const { Date: date, StartTime, EndTime, patient, _id: id } = item;
       const start = new Date(`${date}T${StartTime}`);
       const end = new Date(`${date}T${EndTime}`);

@@ -15,6 +15,7 @@ import adminSlice from "./features/admin/adminSlice";
 import patientSlice from "./features/patient/patientSlice";
 import forgotPassSlice from "./features/forgotPassword/forgotPasswordSlice";
 import scheduleSlice from "./features/schedule/scheduleSlice";
+import reportSlice from "./features/reports/reportSlice";
 
 const reducers = combineReducers({
   auth: authSlice,
@@ -22,6 +23,7 @@ const reducers = combineReducers({
   patient: patientSlice,
   forgotpass: forgotPassSlice,
   schedule: scheduleSlice,
+  reports: reportSlice,
 });
 
 const persistConfig = {

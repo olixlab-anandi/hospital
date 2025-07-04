@@ -91,9 +91,10 @@ export async function POST(req: Request) {
       const base64 = buffer.toString("base64");
       const dataUri = `data:${imageFile.type};base64,${base64}`;
       const uploadRes = await cloudinary.uploader.upload(dataUri, {
-        folder: "hospital/profiles",
+        folder: "hospital/reports",
         public_id: `user_${staff._id}`,
         overwrite: true,
+        resource_type: "video",
       });
       imageUrl = uploadRes.secure_url;
     }

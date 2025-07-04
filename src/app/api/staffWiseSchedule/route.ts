@@ -3,6 +3,8 @@ import AuthCheck from "@/middleware/AuthCheck";
 import scheduleModel from "../../../../model/scheduleSchema";
 import { NextResponse } from "next/server";
 
+import patientModel from "../../../../model/patientSchema"; // Required for Mongoose .populate("patient")
+void patientModel;
 export async function GET(req: Request) {
   try {
     await connection();
@@ -14,9 +16,12 @@ export async function GET(req: Request) {
       "role" in res &&
       (res?.role == "admin" || res?.role == "staff")
     ) {
-      const schedule = await scheduleModel.find({
-        staff: staffId,
-      });
+      const schedule = await scheduleModel
+        .find({
+          staff: staffId,
+        })
+        .populate("patient", "firstName lastName")
+        .lean();
 
       return NextResponse.json(schedule);
     } else {

@@ -72,7 +72,7 @@ function Patient() {
       : null;
 
   const columns: Column<patient>[] = [
-    { label: "ID", key: "id" },
+    // { label: "ID", key: "id" },
     { label: "FIRST NAME", key: "firstName" },
     { label: "LASTNAME", key: "lastName" },
     { label: "email", key: "email" },

@@ -134,7 +134,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       schedules: formattedSchedules,
-      totalPages: Math.ceil(totalCount / parseInt(pageSize || "10")),
+      totalPages: Math.ceil(totalCount / parseInt(pageSize || "5")),
     });
   } catch (err) {
     console.error("Error fetching schedules:", err);

@@ -44,6 +44,7 @@ const Login = () => {
             src="/hospital.jpg" // Place your image in the public folder as hospital.jpg
             alt="Hospital"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{ objectFit: "cover" }}
             priority
           />
@@ -83,6 +84,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                autoComplete="off"
               />
             </div>
             <div className="flex justify-end mb-6">

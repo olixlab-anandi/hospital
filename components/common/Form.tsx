@@ -44,6 +44,7 @@ type FormField = {
   required?: boolean;
   defaultValue?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  multiple?: boolean;
 };
 
 type SectionField = {
@@ -56,9 +57,11 @@ type FormProps = {
   setFormData: (data: FieldValues) => void;
   setIsFormSubmit: (val: boolean) => void;
   formData?: FieldValues;
+  fileData?: File | File[];
   title?: string;
   isLoading?: boolean;
   imagePreview?: string | null;
+  setFileData?: (data: File[]) => void;
   onImageChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -113,8 +116,9 @@ const Form: React.FC<FormProps> = ({
   setIsFormSubmit,
   formData,
   isLoading,
-  imagePreview,
   onImageChange,
+  fileData,
+  setFileData,
 }) => {
   const {
     register,
@@ -126,7 +130,7 @@ const Form: React.FC<FormProps> = ({
   } = useForm({
     defaultValues: useMemo(() => formData, [formData]),
   });
-  console.log(errors);
+
   function onSubmit(data: FieldValues) {
     setIsFormSubmit(true);
     setFormData({ ...formData, ...data });
@@ -137,49 +141,174 @@ const Form: React.FC<FormProps> = ({
       reset(formData);
     }
   }, [formData, reset]);
-
+  console.log(formData);
   const renderField = (field: FormField) => {
     const validation = getValidationRules(field);
-
     if (field.type === "file") {
       return (
-        <div className="flex flex-col items-center mb-8 " key={field.id}>
+        <div className="flex flex-col gap-2 bg-[#FFF]" key={field.id}>
           <label
             htmlFor={field.id}
-            className="mb-2 font-semibold text-[#0288D1] flex items-center gap-2 cursor-pointer"
+            className="font-semibold text-[#1A237E] flex items-center gap-2 cursor-pointer "
           >
-            {iconMap[field.name || "profileImage"]} {field.label}
+            {iconMap[field.name || ""]} {field.label}
           </label>
           <input
             type="file"
             id={field.id}
             accept={field.accept}
-            className="hidden"
+            className="hidden "
             onChange={onImageChange}
+            multiple={field.multiple}
           />
           <div
-            className="w-28 h-28 rounded-full border-2 border-[#0288D1] bg-[#F5F7FA] flex items-center justify-center overflow-hidden cursor-pointer"
+            className="border border-[#B3E5FC] rounded-lg px-3 py-2 bg-[#F5F7FA] flex flex-wrap gap-4 cursor-pointer min-h-[60px]"
             onClick={() => document.getElementById(field.id)?.click()}
           >
-            {imagePreview ? (
-              <Image
-                src={imagePreview}
-                alt="Profile Preview"
-                className="w-full h-full object-cover"
-                width={112}
-                height={112}
-              />
-            ) : (
-              <FaUser className="text-5xl text-[#B3E5FC]" />
-            )}
+            {(() => {
+              const files = fileData as File[];
+              if (files && files.length > 0) {
+                return (
+                  <>
+                    {files.length > 1 && (
+                      <span className="w-full text-xs text-[#0288D1] font-semibold mb-1">
+                        {files.length} files selected
+                      </span>
+                    )}
+                    {files.map((file, idx) => {
+                      // If it's a File object (new upload)
+                      if (file instanceof File) {
+                        return (
+                          <div key={idx} className="relative group">
+                            {file.type.startsWith("image/") ? (
+                              <Image
+                                src={URL.createObjectURL(file)}
+                                alt="Preview"
+                                width={60}
+                                height={60}
+                                className="rounded-md object-cover border border-[#0288D1]"
+                                unoptimized
+                              />
+                            ) : file.type.startsWith("video/") ? (
+                              <span className="text-2xl">🎬</span>
+                            ) : file.type === "application/pdf" ? (
+                              <span className="text-2xl">📄</span>
+                            ) : (
+                              <span className="text-gray-700">{file.name}</span>
+                            )}
+                            <span className="block text-xs mt-1">
+                              {file.name}
+                            </span>
+                            {/* Remove button */}
+                            <button
+                              type="button"
+                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const newFiles = files.filter(
+                                  (_, i) => i !== idx
+                                );
+
+                                if (setFileData) setFileData(newFiles || []);
+                                setFormData((prev: FieldValues) => {
+                                  const updatedReportFile =
+                                    Array.isArray(prev.reportFile) &&
+                                    prev.reportFile.length
+                                      ? prev.reportFile.filter(
+                                          (_, i: number): boolean => i !== idx
+                                        )
+                                      : [];
+
+                                  return {
+                                    ...prev,
+                                    reportFile: updatedReportFile,
+                                  };
+                                });
+                              }}
+                              title="Remove file"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        );
+                      }
+                      // If it's an uploaded file info object
+                      // Add a type assertion to help TypeScript
+                      const uploadedFile = file as {
+                        type: string;
+                        originalName?: string;
+                        viewLink?: string;
+                      };
+                      return (
+                        <div
+                          key={idx}
+                          className="relative group flex flex-col items-center"
+                        >
+                          {uploadedFile.type === "image" ? (
+                            <span className="text-2xl">📷</span>
+                          ) : uploadedFile.type === "video" ? (
+                            <span className="text-2xl">🎬</span>
+                          ) : uploadedFile.type === "pdf" ||
+                            uploadedFile.originalName?.endsWith(".pdf") ? (
+                            <span className="text-2xl">📄</span>
+                          ) : (
+                            <span className="text-2xl">📎</span>
+                          )}
+                          <a
+                            href={uploadedFile.viewLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-xs mt-1 text-[#0288D1] underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {uploadedFile.originalName}
+                          </a>
+                          {/* Remove button */}
+                          <button
+                            type="button"
+                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const newFiles = files.filter(
+                                (_, i) => i !== idx
+                              );
+                              console.log(
+                                "kldddddddddddddddddddddddddd",
+                                newFiles
+                              );
+                              if (setFileData) setFileData(newFiles || []);
+                              setFormData({
+                                ...formData,
+                                reportFile: newFiles,
+                              });
+                            }}
+                            title="Remove file"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              }
+              return (
+                <span className="text-gray-400">
+                  Click to upload files (Image, PDF, or Video)
+                </span>
+              );
+            })()}
           </div>
+          {field.description && (
+            <span className="text-xs text-gray-500">{field.description}</span>
+          )}
         </div>
       );
     }
 
     if (field.type === "textarea") {
-      // Use trigger from react-hook-form to validate the field
-
       return (
         <div className="flex flex-col gap-2" key={field.id}>
           {field.label && (
@@ -289,7 +418,6 @@ const Form: React.FC<FormProps> = ({
               });
 
               if (field.onChange) {
-                // Call onChange with a custom event-like object or just the value
                 field.onChange({
                   target: {
                     name: field.name || "",
