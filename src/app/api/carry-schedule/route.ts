@@ -12,7 +12,7 @@ export async function GET() {
     // 1. Get all patients with pending schedules (who have future sessions)
     const patientsWithSchedules = await scheduleModel
       .find({
-        Status: { $nin: ["Completed", "Canceled"] },
+        Status: { $nin: ["Completed", "Cancelled"] },
       })
       .distinct("patient"); // Only get unique patient IDs
 
@@ -21,13 +21,7 @@ export async function GET() {
     for (const patientId of patientsWithSchedules) {
       // 2. Get latest schedule for the patient
       const lastSchedule = await scheduleModel
-        .findOneAndUpdate(
-          { patient: patientId },
-          {
-            createdAt: new Date(),
-          },
-          { new: true }
-        )
+        .findOne({ patient: patientId })
         .sort({ Date: -1 });
 
       if (!lastSchedule) continue;
