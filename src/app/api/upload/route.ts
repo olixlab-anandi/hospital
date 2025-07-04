@@ -7,6 +7,9 @@ import { promisify } from "util";
 import Busboy from "busboy";
 import { ReadableStream as NodeReadableStream } from "stream/web";
 import { randomUUID } from "crypto";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const writeFile = promisify(fs.writeFile);
 
@@ -64,8 +67,11 @@ export async function POST(req: NextRequest) {
 
     const files = await parseFormData(req);
 
-    const auth = new google.auth.GoogleAuth({
-      keyFile: path.join(process.cwd(), "service-account.json"),
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY
+        ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
+        : "",
       scopes: ["https://www.googleapis.com/auth/drive"],
     });
     const drive = google.drive({ version: "v3", auth });
