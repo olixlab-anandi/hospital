@@ -8,7 +8,7 @@ const schedules = () => {
     "cron job is running-=============================================",
     `${process.env.SITE_URL}/api/carry-schedule`
   );
-  schedule.scheduleJob("50 12 * * *", async () => {
+  schedule.scheduleJob("27 15 * * *", async () => {
     console.log("functiona called");
     try {
       const res = await axios.post(

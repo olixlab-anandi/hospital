@@ -210,12 +210,12 @@ export default function StaffDashboard() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
-            <div className="bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-1 md:max-w-[70%] flex flex-col items-center min-w-0">
+            <div className="bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-1 md:max-w-[70%] justify-center flex flex-col items-center min-w-0">
               <span className="font-semibold text-[#0288D1] mb-2">
                 Fees Collected
               </span>
               <div className="w-full min-w-0">
-                <Bar data={barData} options={barOptions} />
+                <Bar data={barData} />
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex-1 md:max-w-[30%] flex flex-col items-center min-w-0">
@@ -223,7 +223,10 @@ export default function StaffDashboard() {
                 Schedule Status
               </span>
               <div className="w-full flex justify-center">
-                <Doughnut data={doughnutData} />
+                <Doughnut
+                  data={doughnutData}
+                  options={{ ...barOptions, responsive: true }}
+                />
               </div>
             </div>
           </div>

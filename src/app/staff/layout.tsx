@@ -73,8 +73,8 @@ const StaffLayout = ({ children }: { children: React.ReactNode }) => {
   // Handle window resize to auto-close sidebar on md+
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setSidebarOpen(true);
+      if (window.innerWidth >= 1024) {
+        // setSidebarOpen(true);
       } else {
         setSidebarOpen(false);
       }
@@ -102,7 +102,7 @@ const StaffLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex items-center gap-3">
           {/* Hamburger for mobile */}
           <button
-            className="md:hidden mr-2"
+            className="lg:hidden md mr-2"
             aria-label="Open sidebar"
             onClick={() => setSidebarOpen(true)}
           >
@@ -127,7 +127,7 @@ const StaffLayout = ({ children }: { children: React.ReactNode }) => {
             />
             <path d="M8 12h8M12 8v8" stroke={PRIMARY} strokeWidth="2" />
           </svg>
-          <h1 className="text-2xl font-bold tracking-tight ">
+          <h1 className="text-[20px] font-bold tracking-tight sm:text-2xl">
             Staff Dashboard
           </h1>
         </div>
@@ -136,7 +136,7 @@ const StaffLayout = ({ children }: { children: React.ReactNode }) => {
         </button>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row">
         {/* Sidebar for md+ */}
         <aside
           className={`
@@ -182,7 +182,7 @@ const StaffLayout = ({ children }: { children: React.ReactNode }) => {
           className={`
             fixed inset-0 z-40 transition-all duration-300
             ${sidebarOpen ? "block" : "hidden"}
-            md:hidden
+            md-hidden
           `}
           style={{ background: "rgba(0,0,0,0.3)" }}
           onClick={() => setSidebarOpen(false)}

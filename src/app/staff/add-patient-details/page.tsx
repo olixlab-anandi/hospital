@@ -93,6 +93,7 @@ function AddPatient() {
           id: "profileImage",
           label: "Profile Image",
           accept: "image/*",
+          placeholder: "Enter Profile Image...",
         },
         {
           name: "firstName",
@@ -120,8 +121,8 @@ function AddPatient() {
           label: "Phone No",
           type: "number",
           id: "phone",
-          // minLength: 10,
-          // maxLength: 10,
+          minLength: 10,
+          maxLength: 10,
           placeholder: "Enter phone number...",
         },
         {

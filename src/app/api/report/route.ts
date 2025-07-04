@@ -4,6 +4,8 @@ import connection from "@/DB/connection";
 import AuthCheck from "@/middleware/AuthCheck";
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import patientModel from "../../../../model/patientSchema"; // Required for Mongoose .populate("patient")
+void patientModel;
 dotenv.config();
 export async function POST(req: Request) {
   try {

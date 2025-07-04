@@ -141,7 +141,7 @@ const Form: React.FC<FormProps> = ({
       reset(formData);
     }
   }, [formData, reset]);
-  console.log(formData);
+
   const renderField = (field: FormField) => {
     const validation = getValidationRules(field);
     if (field.type === "file") {
@@ -157,7 +157,7 @@ const Form: React.FC<FormProps> = ({
             type="file"
             id={field.id}
             accept={field.accept}
-            className="hidden "
+            className="hidden"
             onChange={onImageChange}
             multiple={field.multiple}
           />
@@ -294,11 +294,7 @@ const Form: React.FC<FormProps> = ({
                   </>
                 );
               }
-              return (
-                <span className="text-gray-400">
-                  Click to upload files (Image, PDF, or Video)
-                </span>
-              );
+              return <span className="text-gray-400">{field.placeholder}</span>;
             })()}
           </div>
           {field.description && (
