@@ -27,7 +27,7 @@ export async function GET() {
       if (!lastSchedule) continue;
 
       const lastDate = new Date(lastSchedule.Date);
-      const frequency = lastSchedule.sessionFrequencyInDays || 1;
+      const frequency = lastSchedule.sessionGap || 1;
 
       const dayGap = Math.floor(
         (today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
