@@ -3,8 +3,8 @@ import reports from "../../../../model/reports";
 import connection from "@/DB/connection";
 import AuthCheck from "@/middleware/AuthCheck";
 import { google } from "googleapis";
-import path from "path";
-
+import dotenv from "dotenv";
+dotenv.config();
 export async function POST(req: Request) {
   try {
     await connection();
@@ -117,8 +117,11 @@ export async function GET(req: Request) {
 
 // app/api/report/route.ts
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(process.cwd(), "service-account.json"),
+const auth = new google.auth.JWT({
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_PRIVATE_KEY
+    ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
+    : "",
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 const drive = google.drive({ version: "v3", auth });
