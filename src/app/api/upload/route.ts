@@ -1,17 +1,13 @@
 import { google } from "googleapis";
-import fs from "fs";
-import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "stream";
-import { promisify } from "util";
 import Busboy from "busboy";
-import { ReadableStream as NodeReadableStream } from "stream/web";
+import path from "path";
 import { randomUUID } from "crypto";
 import dotenv from "dotenv";
+import { ReadableStream as NodeReadableStream } from "stream/web";
 
 dotenv.config();
-
-const writeFile = promisify(fs.writeFile);
 
 type UploadedFile = {
   file: Buffer;
@@ -48,7 +44,27 @@ function parseFormData(req: NextRequest): Promise<UploadedFile[]> {
     });
 
     if (req.body) {
-      Readable.fromWeb(req.body as NodeReadableStream).pipe(busboy);
+      // Convert web ReadableStream to Node.js Readable if possible
+      if (typeof Readable.fromWeb === "function") {
+        const stream = req.body as NodeReadableStream<Uint8Array>;
+        Readable.fromWeb(stream).pipe(busboy);
+      } else {
+        // Fallback for environments without Readable.fromWeb
+        const reader = (
+          req.body as globalThis.ReadableStream<Uint8Array>
+        ).getReader();
+        const nodeStream = new Readable({
+          async read() {
+            const { done, value } = await reader.read();
+            if (done) {
+              this.push(null);
+            } else {
+              this.push(value);
+            }
+          },
+        });
+        nodeStream.pipe(busboy);
+      }
     } else {
       busboy.end();
     }
@@ -57,7 +73,6 @@ function parseFormData(req: NextRequest): Promise<UploadedFile[]> {
 
 export async function POST(req: NextRequest) {
   try {
-    //  Get reportId from query string
     const { searchParams } = new URL(req.url);
     const reportId = searchParams.get("reportId");
 
@@ -74,9 +89,10 @@ export async function POST(req: NextRequest) {
         : "",
       scopes: ["https://www.googleapis.com/auth/drive"],
     });
+
     const drive = google.drive({ version: "v3", auth });
 
-    //  Step 1: Find or create root "hospital" folder
+    // Step 1: Find or create root "hospital" folder
     let hospitalFolderId = "";
     const hospitalQuery = await drive.files.list({
       q: `mimeType='application/vnd.google-apps.folder' and name='hospital' and trashed=false`,
@@ -99,9 +115,9 @@ export async function POST(req: NextRequest) {
     const results = [];
 
     for (const { file, filename, mimeType } of files) {
-      //  Determine folder name based on type
       let folderName = "";
       let fileType = "";
+
       if (mimeType.startsWith("image/")) {
         folderName = "Uploaded_Images";
         fileType = "image";
@@ -116,7 +132,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      //  Step 2: Find/create subfolder inside hospital
+      // Step 2: Find/create subfolder inside hospital
       let subfolderId = "";
       const subfolderQuery = await drive.files.list({
         q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and '${hospitalFolderId}' in parents and trashed=false`,
@@ -137,15 +153,11 @@ export async function POST(req: NextRequest) {
         subfolderId = subfolder.data.id!;
       }
 
-      // 🏷 Generate unique file name: <reportId>_<type>_<uuid>.<ext>
+      // 🏷 Generate unique file name
       const fileExt = path.extname(filename);
       const uniqueName = `${reportId}_${fileType}_${randomUUID()}${fileExt}`;
 
-      //  Save file temporarily
-      const tempPath = path.join(process.cwd(), "uploads", uniqueName);
-      await writeFile(tempPath, file);
-
-      //  Upload to Google Drive
+      // 📤 Upload buffer directly to Google Drive
       const uploadRes = await drive.files.create({
         requestBody: {
           name: uniqueName,
@@ -153,12 +165,12 @@ export async function POST(req: NextRequest) {
         },
         media: {
           mimeType,
-          body: fs.createReadStream(tempPath),
+          body: Readable.from(file), // stream directly from buffer
         },
         fields: "id, webViewLink, webContentLink",
       });
 
-      //  Make file public
+      // 🌍 Make file public
       await drive.permissions.create({
         fileId: uploadRes.data.id!,
         requestBody: {
@@ -167,8 +179,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      //  Delete temp file
-      fs.unlinkSync(tempPath);
       results.push({
         originalName: filename,
         storedName: uniqueName,
