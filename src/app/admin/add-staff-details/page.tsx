@@ -12,6 +12,13 @@ import {
 import { useSearchParams } from "next/navigation";
 import { staff } from "../staff-details/page";
 
+function getDirectImageUrl(viewUrl: string): string {
+  const match = viewUrl.match(/\/d\/(.+?)\//);
+  if (match && match[1]) {
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  }
+  return viewUrl; // fallback
+}
 function AddStaff() {
   const [formData, setFormData] = useState<Partial<staff>>({});
   const [isFormSubmit, setIsFormSubmit] = useState(false);
@@ -44,7 +51,8 @@ function AddStaff() {
       if (data) {
         setFormData(data);
         if (typeof data.profileImage === "string") {
-          setImagePreview(data.profileImage);
+          const directUrl = getDirectImageUrl(data.profileImage);
+          setImagePreview(directUrl);
         } else if (data.profileImage instanceof File) {
           setImagePreview(URL.createObjectURL(data.profileImage));
         } else {
@@ -63,7 +71,6 @@ function AddStaff() {
       Object.entries(submitData).forEach(([key, val]) => {
         formDataObj.append(key, val as string | Blob);
       });
-
       if (id) {
         dispatch(editStaff({ id, data: formDataObj })).then(() => {
           setIsFormSubmit(false);
@@ -117,8 +124,8 @@ function AddStaff() {
           label: "Phone No",
           type: "number",
           id: "phone",
-          min: 10,
-          max: 10,
+          minLength: 10,
+          maxLength: 10,
           placeholder: "Enter phone number...",
         },
         {

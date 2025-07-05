@@ -1,8 +1,8 @@
 import adminSchema from "../../../../../model/adminSchema";
-import cloudinary from "../../../../../cloudinary";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import connection from "@/DB/connection";
+import uploadToGoogleDrive from "../../_utils/uploadToGoogleDrive";
 
 export async function PATCH(req: Request) {
   try {
@@ -20,14 +20,14 @@ export async function PATCH(req: Request) {
       // Convert File to base64 string for cloudinary upload
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const base64 = buffer.toString("base64");
-      const dataUri = `data:${imageFile.type};base64,${base64}`;
-      const uploadRes = await cloudinary.uploader.upload(dataUri, {
-        folder: "hospital/profiles",
-        public_id: `user_${phone}`,
-        overwrite: true,
+
+      const uploadRes = await uploadToGoogleDrive({
+        file: buffer,
+        filename: imageFile.name,
+        mimeType: imageFile.type,
+        id: id.toString(),
       });
-      imageUrl = uploadRes.secure_url;
+      imageUrl = uploadRes.viewLink as string;
     }
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(

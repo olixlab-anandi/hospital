@@ -13,6 +13,13 @@ import {
 import { patient } from "../patient-detail/page";
 import { redirect } from "next/navigation";
 
+function getDirectImageUrl(viewUrl: string): string {
+  const match = viewUrl.match(/\/d\/(.+?)\//);
+  if (match && match[1]) {
+    return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+  }
+  return viewUrl; // fallback
+}
 function AddPatient() {
   const [formData, setFormData] = useState<patient>({});
   const [isFormSubmit, setIsFormSubmit] = useState(false);
@@ -45,10 +52,13 @@ function AddPatient() {
       const data = patientList.find((elem: patient) => elem._id == id) as
         | patient
         | undefined;
+
+      console.log(data);
       if (data) {
         setFormData(data);
         if (typeof data.profileImage === "string") {
-          setImagePreview(data.profileImage);
+          const directUrl = getDirectImageUrl(data.profileImage);
+          setImagePreview(directUrl);
         } else if (data.profileImage instanceof File) {
           setImagePreview(URL.createObjectURL(data.profileImage));
         } else {
@@ -126,8 +136,6 @@ function AddPatient() {
           label: "Phone No",
           type: "number",
           id: "phone",
-          min: 10,
-          max: 10,
           placeholder: "Enter phone number...",
         },
         {

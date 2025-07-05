@@ -43,6 +43,7 @@ type FormField = {
   description?: string;
   required?: boolean;
   defaultValue?: string;
+
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   multiple?: boolean;
 };
@@ -114,6 +115,7 @@ const Form: React.FC<FormProps> = ({
   formFields,
   setFormData,
   setIsFormSubmit,
+  imagePreview,
   formData,
   isLoading,
   onImageChange,
@@ -144,166 +146,195 @@ const Form: React.FC<FormProps> = ({
 
   const renderField = (field: FormField) => {
     const validation = getValidationRules(field);
+
+    // --- FILE FIELD ---
     if (field.type === "file") {
+      const files = Array.isArray(fileData)
+        ? fileData
+        : fileData
+        ? [fileData]
+        : [];
+
+      const fieldKey = field.name || "";
+
+      // --- MULTIPLE FILE INPUT ---
+      if (field.multiple) {
+        return (
+          <div className="flex flex-col gap-2 bg-white" key={field.id}>
+            <label
+              htmlFor={field.id}
+              className="font-semibold text-[#1A237E] flex items-center gap-2 cursor-pointer"
+            >
+              {iconMap[fieldKey]} {field.label}
+            </label>
+            <input
+              type="file"
+              id={field.id}
+              accept={field.accept}
+              multiple
+              className="hidden"
+              onChange={onImageChange}
+            />
+            <div
+              className="border border-[#B3E5FC] rounded-lg px-3 py-2 bg-[#F5F7FA] flex flex-wrap gap-4 cursor-pointer min-h-[60px]"
+              onClick={() => document.getElementById(field.id)?.click()}
+            >
+              {files.length > 0 ? (
+                files.map((file, idx) => {
+                  if (file instanceof File) {
+                    let preview: React.ReactNode = null;
+
+                    if (file.type.startsWith("image/")) {
+                      preview = (
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt="Preview"
+                          width={60}
+                          height={60}
+                          className="rounded-md object-cover border border-[#0288D1]"
+                          unoptimized
+                        />
+                      );
+                    } else if (file.type.startsWith("video/")) {
+                      preview = <span className="text-3xl">🎬</span>;
+                    } else if (file.type === "application/pdf") {
+                      preview = <span className="text-3xl">📄</span>;
+                    } else {
+                      preview = <span className="text-sm">{file.name}</span>;
+                    }
+
+                    return (
+                      <div key={idx} className="relative group text-center">
+                        {preview}
+                        <span className="block text-xs mt-1 truncate w-[80px]">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const newFiles = files.filter((_, i) => i !== idx);
+                            if (setFileData) setFileData(newFiles);
+                            setFormData((prev: FieldValues) => ({
+                              ...prev,
+                              [fieldKey]: newFiles,
+                            }));
+                          }}
+                          title="Remove file"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  // Uploaded file object (from DB)
+                  const uploadedFile = file as {
+                    type: string;
+                    originalName?: string;
+                    viewLink?: string;
+                  };
+
+                  return (
+                    <div
+                      key={idx}
+                      className="relative group flex flex-col items-center"
+                    >
+                      {uploadedFile.type === "image" ? (
+                        <span className="text-3xl">📷</span>
+                      ) : uploadedFile.type === "video" ? (
+                        <span className="text-3xl">🎬</span>
+                      ) : uploadedFile.type === "pdf" ||
+                        uploadedFile.originalName?.endsWith(".pdf") ? (
+                        <span className="text-3xl">📄</span>
+                      ) : (
+                        <span className="text-2xl">📎</span>
+                      )}
+                      <a
+                        href={uploadedFile.viewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs mt-1 text-[#0288D1] underline truncate w-[80px]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {uploadedFile.originalName}
+                      </a>
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const newFiles = files.filter((_, i) => i !== idx);
+                          if (setFileData) setFileData(newFiles);
+                          setFormData((prev: FieldValues) => ({
+                            ...prev,
+                            [fieldKey]: newFiles,
+                          }));
+                        }}
+                        title="Remove file"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <span className="text-gray-400">{field.placeholder}</span>
+              )}
+            </div>
+            {field.description && (
+              <span className="text-xs text-gray-500">{field.description}</span>
+            )}
+          </div>
+        );
+      }
+
       return (
-        <div className="flex flex-col gap-2 bg-[#FFF]" key={field.id}>
+        <div className="flex flex-col gap-2 bg-white" key={field.id}>
           <label
             htmlFor={field.id}
-            className="font-semibold text-[#1A237E] flex items-center gap-2 cursor-pointer "
+            className="font-semibold text-[#1A237E] flex items-center gap-2"
           >
-            {iconMap[field.name || ""]} {field.label}
+            {iconMap[fieldKey]} {field.label}
           </label>
+
           <input
             type="file"
             id={field.id}
-            accept={field.accept}
+            accept={field.accept || "image/*"}
             className="hidden"
             onChange={onImageChange}
-            multiple={field.multiple}
           />
+
           <div
-            className="border border-[#B3E5FC] rounded-lg px-3 py-2 bg-[#F5F7FA] flex flex-wrap gap-4 cursor-pointer min-h-[60px]"
             onClick={() => document.getElementById(field.id)?.click()}
+            className="w-[100px] h-[100px] rounded-md border border-dashed border-gray-300 bg-gray-100 hover:border-[#0288D1] flex items-center justify-center overflow-hidden cursor-pointer transition"
           >
-            {(() => {
-              const files = fileData as File[];
-              if (files && files.length > 0) {
-                return (
-                  <>
-                    {files.length > 1 && (
-                      <span className="w-full text-xs text-[#0288D1] font-semibold mb-1">
-                        {files.length} files selected
-                      </span>
-                    )}
-                    {files.map((file, idx) => {
-                      // If it's a File object (new upload)
-                      if (file instanceof File) {
-                        return (
-                          <div key={idx} className="relative group">
-                            {file.type.startsWith("image/") ? (
-                              <Image
-                                src={URL.createObjectURL(file)}
-                                alt="Preview"
-                                width={60}
-                                height={60}
-                                className="rounded-md object-cover border border-[#0288D1]"
-                                unoptimized
-                              />
-                            ) : file.type.startsWith("video/") ? (
-                              <span className="text-2xl">🎬</span>
-                            ) : file.type === "application/pdf" ? (
-                              <span className="text-2xl">📄</span>
-                            ) : (
-                              <span className="text-gray-700">{file.name}</span>
-                            )}
-                            <span className="block text-xs mt-1">
-                              {file.name}
-                            </span>
-                            {/* Remove button */}
-                            <button
-                              type="button"
-                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                const newFiles = files.filter(
-                                  (_, i) => i !== idx
-                                );
-
-                                if (setFileData) setFileData(newFiles || []);
-                                setFormData((prev: FieldValues) => {
-                                  const updatedReportFile =
-                                    Array.isArray(prev.reportFile) &&
-                                    prev.reportFile.length
-                                      ? prev.reportFile.filter(
-                                          (_, i: number): boolean => i !== idx
-                                        )
-                                      : [];
-
-                                  return {
-                                    ...prev,
-                                    reportFile: updatedReportFile,
-                                  };
-                                });
-                              }}
-                              title="Remove file"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        );
-                      }
-                      // If it's an uploaded file info object
-                      // Add a type assertion to help TypeScript
-                      const uploadedFile = file as {
-                        type: string;
-                        originalName?: string;
-                        viewLink?: string;
-                      };
-                      return (
-                        <div
-                          key={idx}
-                          className="relative group flex flex-col items-center"
-                        >
-                          {uploadedFile.type === "image" ? (
-                            <span className="text-2xl">📷</span>
-                          ) : uploadedFile.type === "video" ? (
-                            <span className="text-2xl">🎬</span>
-                          ) : uploadedFile.type === "pdf" ||
-                            uploadedFile.originalName?.endsWith(".pdf") ? (
-                            <span className="text-2xl">📄</span>
-                          ) : (
-                            <span className="text-2xl">📎</span>
-                          )}
-                          <a
-                            href={uploadedFile.viewLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block text-xs mt-1 text-[#0288D1] underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {uploadedFile.originalName}
-                          </a>
-                          {/* Remove button */}
-                          <button
-                            type="button"
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              const newFiles = files.filter(
-                                (_, i) => i !== idx
-                              );
-                              console.log(
-                                "kldddddddddddddddddddddddddd",
-                                newFiles
-                              );
-                              if (setFileData) setFileData(newFiles || []);
-                              setFormData({
-                                ...formData,
-                                reportFile: newFiles,
-                              });
-                            }}
-                            title="Remove file"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </>
-                );
-              }
-              return <span className="text-gray-400">{field.placeholder}</span>;
-            })()}
+            {imagePreview ? (
+              <Image
+                src={imagePreview}
+                alt="Profile"
+                width={100}
+                height={100}
+                className="object-cover rounded-md"
+                unoptimized
+              />
+            ) : (
+              <span className="text-gray-400 text-sm">100 × 100</span>
+            )}
           </div>
-          {field.description && (
-            <span className="text-xs text-gray-500">{field.description}</span>
-          )}
+
+          <span className="text-xs text-gray-500">
+            Click the image to select or change the profile photo.
+          </span>
         </div>
       );
     }
 
+    // --- TEXTAREA FIELD ---
     if (field.type === "textarea") {
       return (
         <div className="flex flex-col gap-2" key={field.id}>
@@ -346,6 +377,7 @@ const Form: React.FC<FormProps> = ({
       );
     }
 
+    // --- SELECT FIELD ---
     if (field.type === "select" && field.options) {
       return (
         <div className="flex flex-col gap-2" key={field.id}>
@@ -446,6 +478,7 @@ const Form: React.FC<FormProps> = ({
       );
     }
 
+    // --- BUTTON FIELD ---
     if (field.type === "button") {
       return (
         <button
@@ -463,7 +496,8 @@ const Form: React.FC<FormProps> = ({
         </button>
       );
     }
-    // Default input
+
+    // --- DEFAULT INPUT FIELD ---
     return (
       <div className="flex flex-col gap-2" key={field.id}>
         {field.label && (
@@ -481,7 +515,7 @@ const Form: React.FC<FormProps> = ({
             placeholder={field.placeholder}
             id={field.id}
             {...register(field.name || "", validation)}
-            min={field.min}
+            min={field.min || undefined}
             max={field.max}
             className={`border border-[#B3E5FC] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#64B5F6] text-[#1A237E] bg-white w-full ${
               errors[field.name || ""] ? "border-red-400" : ""

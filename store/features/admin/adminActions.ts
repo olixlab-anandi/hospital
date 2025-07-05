@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const addStaff = createAsyncThunk(
   "admin/add-staff",
-  async (obj: FormData, _thunkApi) => {
+  async (obj: Form, _thunkApi) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post("/api/staff", obj, {

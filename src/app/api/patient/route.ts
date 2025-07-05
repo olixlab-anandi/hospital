@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import connection from "@/DB/connection";
 import patientModel from "../../../../model/patientSchema";
 import { format } from "date-fns";
-import cloudinary from "../../../../cloudinary";
+import uploadToGoogleDrive from "../_utils/uploadToGoogleDrive";
 
 export async function POST(req: Request) {
   await connection();
@@ -12,100 +12,72 @@ export async function POST(req: Request) {
   const res = await AuthCheck(token as string);
 
   if (
-    typeof res == "object" &&
+    typeof res === "object" &&
     "role" in res &&
-    (res?.role == "admin" || res?.role == "staff")
+    (res.role === "admin" || res.role === "staff")
   ) {
     const data = await req.formData();
     const imageFile = data.get("profileImage") as File | null;
-    let imageUrl = "";
-
-    // const htmlContent = `
-    //   <div style="font-family: Arial, sans-serif; background: #f4f8fb; padding: 24px; margin:auto">
-    //     <div style="background: #fff; border-radius: 8px; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #B3E5FC;">
-    //       <h2 style="color: #0288D1;">Hospital Management System</h2>
-    //       <p>Hello <b>${data.name || "User"}</b>,</p>
-    //       <p>Your account information:</p>
-    //       <ul>
-    //         <li><b>Email:</b> ${data.email}</li>
-    //         ${data.role ? `<li><b>Role:</b> ${data.role}</li>` : ""}
-    //       </ul>
-    //       <div style="margin-bottom:20px">You have been added as a patient member. We're excited to have you onboard and want to help you get started as quickly and smoothly as possible.</div>
-
-    //       <div style="padding:10px 0px">If you have any questions or need assistance, feel free to reach out to us. We're here to help you every step of the way!</div>
-    //       <p>If you did not request this, please ignore this email.</p>
-    //       <p style="font-size: 12px; color: #888;">&copy; ${new Date().getFullYear()} Hospital Management System</p>
-    //     </div>
-    //   </div>
-    // `;
 
     const isExist = await patientModel.findOne({ email: data.get("email") });
-
     if (isExist) {
       return NextResponse.json({
         success: false,
-        message: "Email Already Exist",
+        message: "Email Already Exists",
       });
-    } else {
-      const patient = new patientModel({
-        firstName: data.get("firstName") as string,
-        lastName: data.get("lastName") as string,
-        staff: data.get("staff") || "No Staff Assigned",
-        email: data.get("email") as string,
-        age: data.get("age") as string,
-        phone: data.get("phone"),
-        role: "patient",
-        profileImage: imageUrl || "",
-        flatNo: data.get("flatNo"),
-        area: data.get("area"),
-        city: data.get("city"),
-        state: data.get("state"),
-        zipCode: data.get("zipCode"),
-        bloodGroup: data.get("bloodGroup"),
-        diagnosed: data.get("diagnosed"),
-        primaryDoctor: data.get("primaryDoctor"),
-        medicalHistory: data.get("medicalHistory"),
-        registered: format(new Date(), "dd/MM/yyyy"),
+    }
+
+    const patient = new patientModel({
+      firstName: data.get("firstName") as string,
+      lastName: data.get("lastName") as string,
+      staff: data.get("staff") || "No Staff Assigned",
+      email: data.get("email") as string,
+      age: data.get("age") as string,
+      phone: data.get("phone"),
+      role: "patient",
+      profileImage: "", // placeholder
+      flatNo: data.get("flatNo"),
+      area: data.get("area"),
+      city: data.get("city"),
+      state: data.get("state"),
+      zipCode: data.get("zipCode"),
+      bloodGroup: data.get("bloodGroup"),
+      diagnosed: data.get("diagnosed"),
+      primaryDoctor: data.get("primaryDoctor"),
+      medicalHistory: data.get("medicalHistory"),
+      registered: format(new Date(), "dd/MM/yyyy"),
+    });
+
+    await patient.save(); // get _id
+
+    // ✅ Upload profile image to Google Drive
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const uploadRes = await uploadToGoogleDrive({
+        file: buffer,
+        filename: imageFile.name,
+        mimeType: imageFile.type,
+        id: patient._id.toString(),
       });
 
-      await patient.save();
-
-      if (imageFile && imageFile.size > 0) {
-        const arrayBuffrer = await imageFile?.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffrer);
-        const base64 = buffer.toString("base64");
-        const dataUri = `data:${imageFile.type};base64,${base64}`;
-        const uploadRes = await cloudinary.uploader.upload(dataUri, {
-          folder: "hospital/profiles",
-          public_id: `user_${patient._id}`,
-          overwrite: true,
-        });
-        imageUrl = uploadRes.secure_url;
-      }
-
-      await patientModel.findOneAndUpdate(
-        { _id: patient._id },
+      const res = await patientModel.findByIdAndUpdate(
+        patient._id,
         {
-          profileImage: imageUrl,
-        }
+          profileImage: uploadRes.viewLink,
+        },
+        { new: true }
       );
-      // await sendEmail({
-      //   from: "olixlab.50@gmail.com",
-      //   to: data.email,
-      //   subject: "Added As Patient",
-      //   text: `Hello ${
-      //     data.name || "User"
-      //   },\n\nPlease use the links below to manage your password.`,
-      //   html: htmlContent,
-      // });
+      console.log("repswfsd", res);
     }
 
     return NextResponse.json({
       success: true,
-      message: "Data Added Succesfully",
+      message: "Patient added successfully",
     });
   } else {
-    return NextResponse.json({ status: 401 });
+    return NextResponse.json({ status: 401, message: "Unauthorized" });
   }
 }
 
@@ -199,23 +171,46 @@ export async function DELETE(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    await connection();
+    const token = req.headers.get("authorization");
+    const res = await AuthCheck(token as string);
+
     const { searchParams } = new URL(req.url);
     const data = await req.formData();
     const id = searchParams.get("id");
-    const imageFile = data.get("profileImage") as File | null;
-    let imageUrl = "";
-    if (imageFile && imageFile.size > 0) {
-      const arrayBuffrer = await imageFile?.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffrer);
-      const base64 = buffer.toString("base64");
-      const dataUri = `data:${imageFile.type};base64,${base64}`;
-      const uploadRes = await cloudinary.uploader.upload(dataUri, {
-        folder: "hospital/profiles",
-        public_id: `user_${id}`,
-        overwrite: true,
+
+    if (!id) {
+      return NextResponse.json({
+        success: false,
+        message: "Missing patient ID",
       });
-      imageUrl = uploadRes.secure_url;
     }
+
+    if (
+      typeof res !== "object" ||
+      !("role" in res) ||
+      !["admin", "staff"].includes(res.role)
+    ) {
+      return NextResponse.json({ status: 401, message: "Unauthorized" });
+    }
+
+    let imageUrl = "";
+
+    const imageFile = data.get("profileImage") as File | null;
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const uploadRes = await uploadToGoogleDrive({
+        file: buffer,
+        filename: imageFile.name,
+        mimeType: imageFile.type,
+        id: id.toString(),
+      });
+
+      imageUrl = uploadRes.viewLink as string;
+    }
+
     await patientModel.findByIdAndUpdate(id, {
       firstName: data.get("firstName") as string,
       lastName: data.get("lastName") as string,
@@ -234,18 +229,12 @@ export async function PATCH(req: Request) {
       primaryDoctor: data.get("primaryDoctor"),
       medicalHistory: data.get("medicalHistory"),
       registered: format(new Date(), "dd/MM/yyyy"),
+      ...(imageUrl && { profileImage: imageUrl }),
     });
-    if (imageUrl) {
-      await patientModel.findOneAndUpdate(
-        { _id: id },
-        {
-          profileImage: imageUrl,
-        }
-      );
-    }
+
     return NextResponse.json({
       success: true,
-      message: "Data Edited succesfully",
+      message: "Patient data updated successfully",
     });
   } catch (error) {
     console.error("PATCH error:", error);

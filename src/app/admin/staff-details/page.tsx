@@ -119,6 +119,7 @@ function Staff() {
   ];
 
   const handleEdit = (id: string | undefined) => {
+    console.log(id);
     redirect(`/admin/add-staff-details?id=${id}`);
   };
 
