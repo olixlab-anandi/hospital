@@ -1,10 +1,13 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI as string;
+const uri = (process.env.MONGODB_URI || process.env.MONGODB_URL) as string;
+
+if (!uri) {
+  throw new Error("Please add your Mongo URI to .env.local");
+}
 const options = {};
 
 let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
 
 // Extend the global type so TypeScript knows about our custom property
 declare global {

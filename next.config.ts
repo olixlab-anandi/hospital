@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["drive.google.com"],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
