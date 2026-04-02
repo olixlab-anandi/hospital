@@ -1,10 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Footer from "../../components/common/Footer";
 import Header from "../../components/common/Header";
 import { FaHospitalAlt, FaUserMd, FaHeartbeat } from "react-icons/fa";
+import Chat from "./chat";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../store/store";
+import { logout } from "../../store/features/auth/authSlice";
 
 const NAV_BUTTONS = [
   {
@@ -22,8 +26,22 @@ const NAV_BUTTONS = [
 ];
 
 export default function Home() {
+  const [chatOpen, setChatOpen] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
+  
+  const handleChatClick = () => {
+    setChatOpen(true);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <>
+      {/* {chatOpen && <Chat />} */}
       <Header />
 
       <div className="min-h-[85vh] flex flex-col items-center justify-center bg-white animate-fade-in">
@@ -95,6 +113,56 @@ export default function Home() {
           </figure>
         </section>
       </div>
+      {/* Chatbot Floating Button
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={handleChatClick}
+          className="bg-[#0288D1] hover:bg-[#01579b] text-white p-4 rounded-full shadow-2xl flex items-center justify-center animate-bounce"
+          title="Chat with us"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8-1.93 0-3.68-.684-5-1.807L3 20l1.807-4C3.684 13.68 3 11.93 3 10c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+        </button>
+      </div>
+      {chatOpen && (
+        <div className="fixed bottom-20 right-6 w-[380px] h-[560px] bg-white shadow-2xl rounded-xl border border-gray-200 z-50 overflow-hidden flex flex-col">
+          <div className="bg-[#0288D1] text-white p-4 flex justify-between items-center">
+            <div>
+              <h2 className="font-bold text-lg">Chatbot</h2>
+              {isAuthenticated && (
+                <p className="text-xs opacity-90">Welcome, {user.firstName || 'User'}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {isAuthenticated && (
+                <button 
+                  onClick={handleLogout} 
+                  className="text-xs bg-white bg-opacity-20 hover:bg-opacity-30 px-2 py-1 rounded transition-colors"
+                  title="Logout"
+                >
+                  Logout
+                </button>
+              )}
+              <button onClick={() => setChatOpen(false)} className="hover:opacity-80">✕</button>
+            </div>
+          </div>
+          <div className="flex-1 min-h-0">
+            <Chat />
+          </div>
+        </div>
+      )} */}
       <Footer />
     </>
   );

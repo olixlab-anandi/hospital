@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
 import React from "react";
-
+import Script from 'next/script'
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,6 +28,13 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
         </Providers>
       </body>
+       <Script
+          src="http://localhost:3000/embed.js"
+          data-origin="http://localhost:3000"
+          data-bot-name="Assistant"
+          data-primary-color="#0ea5e9"
+          strategy="afterInteractive"
+        />
     </html>
   );
 }
